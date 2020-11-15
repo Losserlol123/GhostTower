@@ -1,0 +1,98 @@
+var tower,TowerImage;
+var climber,climberImage,climberGroup;
+var door,doorImage,doorGroup;
+var invisible_block,invisible_blockGroup;
+var ghost,ghostImage;
+var gamestate="PLAY"
+
+function preload (){
+  TowerImage=loadImage("tower.png");
+  doorImage=loadImage("door.png");
+  climberImage=loadImage("climber.png");
+  ghostImage=loadImage("ghost-standing.png");
+}
+function setup (){
+  createCanvas(600,600);
+
+  tower=createSprite(300,300);
+  tower.addImage(TowerImage);
+  tower.velocityY=1
+  
+  ghost=createSprite(300,300,10,20);
+  ghost.addImage(ghostImage);
+  ghost.scale = 0.267;
+  
+  
+  doorGroup=new Group();
+  climberGroup=new Group();
+  invisible_blockGroup=new Group();
+}
+function draw (){
+  background("black");
+  
+  if(gamestate==="PLAY"){
+  if(tower.y>600){
+    tower.y=300
+  }
+  if(keyDown("UP")){
+    ghost.velocityY=-2;
+    
+  }
+  if(keyDown("RIGHT")){
+    ghost.x=ghost.x+3;
+  
+  }
+  if(keyDown("LEFT")){
+    ghost.x=ghost.x-3;
+  
+  }
+  if(climberGroup.isTouching(ghost)){
+    ghost.velocityY=0;
+    tower.velocityY=0;
+    door.velocityY=0;
+    
+  }
+ 
+  ghost.velocityY=ghost.velocityY+0.8
+  
+  if(invisible_blockGroup.isTouching(ghost)){
+    gamestate="END";
+    ghost.destroy();
+  }
+  
+  spawnDoor();
+  drawSprites();
+  }
+  if(gamestate==="END"){
+    stroke("yellow"); 
+    fill("yellow");
+    textSize(30);
+    text("Game Over", 230,250);
+    
+  }
+}
+function spawnDoor(){
+  
+  if(frameCount %200===0){
+    
+    door=createSprite(random(200,500),10);
+    door.addImage(doorImage);
+    door.velocityY=1;
+    door.lifetime=620;
+    doorGroup.add(door);
+    ghost.depth=door.depth
+    ghost.depth=ghost.depth+1
+    
+    climber=createSprite(door.x,door.y+61);
+    climber.addImage(climberImage);
+    climber.velocityY=1;
+    climber.lifetime=620;
+    climberGroup.add(climber);
+    
+    invisible_block=createSprite(door.x,door.y+65,climber.width,10);
+    invisible_block.velocityY=1;
+    invisible_block.lifetime=620;
+    invisible_block.debug=true;
+    invisible_blockGroup.add(invisible_block);
+  }
+}
